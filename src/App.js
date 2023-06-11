@@ -64,7 +64,6 @@ function App() {
   const [openDetail, setOpenDetail] = React.useState(false);
   const [prodDetail, setProdDetail] = React.useState(null);
   const [openEditProd, setOpenEdit] = React.useState(false);
-  const [editedProduct, setEditedProduct] = React.useState(null);
 
   const detailOpen = (id) => {
     const prod = datas.find((product) => product.id === id);
@@ -74,19 +73,23 @@ function App() {
   const detailClose = () => setOpenDetail(false);
 
   const editOpen = (id) => {
-    setEditedProduct(id);
+    const prod = datas.find((product) => product.id === id);
+    setProduct(prod);
     setOpenEdit(true);
   };
 
   const editClose = () => setOpenEdit(false);
 
-  const handleSave = (id) => {
-    const updatedDatas = datas.map((product) =>
-      product.id === id ? prodDetail : product
-    );
+  const saveEditProduct = (id) => {
+    const updatedDatas = datas.map((product) => {
+      if (product.id === id) {
+        return { ...product, ...products };
+      }
+      return product;
+    });
     setDatas(updatedDatas);
     setOpenEdit(false);
-    setEditedProduct(null);
+    setOpenDetail(false);
   };
 
   const AddProd = () => {
@@ -296,48 +299,39 @@ function App() {
                         </Typography>
 
                         <TextField
-                          defaultValue={prodDetail && prodDetail.name}
+                          defaultValue={products.name}
                           label="Name"
                           margin="normal"
                           onChange={(e) =>
-                            setEditedProduct({
-                              ...editedProduct,
-                              name: e.target.value,
-                            })
+                            setProduct({ ...products, name: e.target.value })
                           }
                         ></TextField>
                         <TextField
-                          defaultValue={prodDetail && prodDetail.price}
+                          defaultValue={products.price}
                           label="Price"
                           margin="normal"
                           type="number"
                           onChange={(e) =>
-                            setEditedProduct({
-                              ...editedProduct,
-                              price: e.target.value,
-                            })
+                            setProduct({ ...products, price: e.target.value })
                           }
                         ></TextField>
                         <TextField
-                          defaultValue={prodDetail && prodDetail.description}
+                          defaultValue={products.description}
                           label="Description"
                           margin="normal"
                           onChange={(e) =>
-                            setEditedProduct({
-                              ...editedProduct,
+                            setProduct({
+                              ...products,
                               description: e.target.value,
                             })
                           }
                         ></TextField>
                         <TextField
-                          defaultValue={prodDetail && prodDetail.photo}
+                          defaultValue={products.photo}
                           label="Photo"
                           margin="normal"
                           onChange={(e) =>
-                            setEditedProduct({
-                              ...editedProduct,
-                              photo: e.target.value,
-                            })
+                            setProduct({ ...products, photo: e.target.value })
                           }
                         ></TextField>
                         <div
@@ -347,8 +341,8 @@ function App() {
                             alignItems: "end",
                           }}
                         >
-                          <Button onCick={editClose}>Cancel</Button>
-                          <Button onClick={() => handleSave(prodDetail.id)}>
+                          <Button onClick={editClose}>Cancel</Button>
+                          <Button onClick={() => saveEditProduct(products.id)}>
                             Save
                           </Button>
                         </div>
@@ -360,6 +354,7 @@ function App() {
                       >
                         <img
                           src={product.photo}
+                          alt={product.name}
                           style={{ maxWidth: "100%", overflow: "hidden" }}
                         ></img>
                       </div>
