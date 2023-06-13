@@ -2,7 +2,7 @@ import "./App.css";
 import * as React from "react";
 import data from "./data.json";
 import { v4 as uuid } from "uuid";
-import { Delete, Add, Build } from "@mui/icons-material";
+import { Delete, Add, Build, Cancel } from "@mui/icons-material";
 import {
   Fab,
   Grid,
@@ -19,26 +19,31 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "60vw",
+  maxHeight: "80vh",
   bgcolor: "background.paper",
-  border: "2px solid #000",
-  borderRadius: "2%",
+  border: "2px solid #000, 30%",
+  borderRadius: "10px",
   boxShadow: 24,
-  p: 4,
+  p: 2,
+  overflow: "auto",
 };
 
-const stylecard = {
+const stylecancel = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  maxWidth: "60vw",
+  width: "30vw",
   maxHeight: "80vh",
+  display: "flex",
+  flexFlow: "column",
+  alignItems: "center",
   bgcolor: "background.paper",
-  border: "2px solid #000",
-  borderRadius: "2%",
+  border: "2px solid #000, 30%",
+  borderRadius: "10px",
   boxShadow: 24,
-  p: 1,
+  p: 2,
 };
 
 function App() {
@@ -78,7 +83,13 @@ function App() {
     setOpenEdit(true);
   };
 
-  const editClose = () => setOpenEdit(false);
+  const editClose = () => {
+    setProduct(initialState);
+    setOpenEdit(false);
+  };
+  const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false);
+  const confirmDeleteOpen = () => setOpenConfirmDelete(true);
+  const confirmDeleteClose = () => setOpenConfirmDelete(false);
 
   const saveEditProduct = (id) => {
     const updatedDatas = datas.map((product) => {
@@ -88,6 +99,7 @@ function App() {
       return product;
     });
     setDatas(updatedDatas);
+    setProduct(initialState);
     setOpenEdit(false);
     setOpenDetail(false);
   };
@@ -102,13 +114,14 @@ function App() {
   const DeleteProd = (id) => {
     const updatedDatas = datas.filter((product) => product.id !== id);
     setDatas(updatedDatas);
+    setOpenConfirmDelete(false);
     setOpenDetail(false);
   };
 
   return (
     <div className="App">
       <header className="App-header">
-        <p style={{ margin: "1rem" }}>
+        <p style={{ margin: "2rem" }}>
           Sit ipsum consequat incididunt tempor elit cillum aliqua ut laborum
           esse culpa incididunt duis. Ad anim nulla excepteur est incididunt
           duis aute ut. Minim do dolor anim veniam in et veniam qui ea fugiat
@@ -118,25 +131,38 @@ function App() {
       <main>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <h2>PRODUCTS</h2>
-
-          <Modal
-            open={openAdd}
-            onClose={addClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Box sx={style}>
-              <Typography
-                id="modal-modal-title"
-                variant="h5"
-                component="h2"
-                sx={{ display: "flex", justifyContent: "center" }}
-              >
-                Add a product
-              </Typography>
+        </div>
+        <hr style={{ margin: "1rem" }} />
+        <Modal
+          open={openAdd}
+          onClose={addClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography
+              id="modal-modal-title"
+              variant="h5"
+              component="h2"
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                marginY: "1rem",
+              }}
+            >
+              Add a product
+            </Typography>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column ",
+                alignItems: "center",
+              }}
+            >
               <TextField
                 label="Name"
-                margin="normal"
+                margin="dense"
+                sx={{ width: "80%" }}
                 onChange={(e) =>
                   setProduct({ ...products, name: e.target.value })
                 }
@@ -144,8 +170,9 @@ function App() {
               <br />
               <TextField
                 label="Price"
-                margin="normal"
+                margin="dense"
                 type="number"
+                sx={{ width: "80%" }}
                 onChange={(e) =>
                   setProduct({
                     ...products,
@@ -156,7 +183,8 @@ function App() {
               <br />
               <TextField
                 label="Description"
-                margin="normal"
+                margin="dense"
+                sx={{ width: "80%" }}
                 onChange={(e) =>
                   setProduct({ ...products, description: e.target.value })
                 }
@@ -164,190 +192,259 @@ function App() {
               <br />
               <TextField
                 label="Photo"
-                margin="normal"
+                margin="dense"
+                sx={{ width: "80%" }}
                 onChange={(e) =>
                   setProduct({ ...products, photo: e.target.value })
                 }
               ></TextField>
-              <br />
-              <div style={{ display: "flex", justifyContent: "end" }}>
-                <Button onClick={AddProd}>Add</Button>
-              </div>
-            </Box>
-          </Modal>
-        </div>
-        <hr style={{ margin: "1rem" }} />
-
+            </div>
+            <br />
+            <div style={{ display: "flex", justifyContent: "end" }}>
+              <Button
+                onClick={AddProd}
+                color="primary"
+                sx={{ backgroundColor: "#757de8", color: "white" }}
+              >
+                Add
+              </Button>
+            </div>
+          </Box>
+        </Modal>
+        <Modal
+          open={openDetail}
+          onClose={detailClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Grid container rowSpacing={0} columnSpacing={0}>
+              <Grid
+                xs={12}
+                sm={12}
+                md={5.3}
+                lg={5.3}
+                sx={{
+                  overflow: "hidden",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  src={prodDetail && prodDetail.photo}
+                  alt="product"
+                  style={{
+                    height: "60vh",
+                    width: "auto",
+                  }}
+                ></img>
+              </Grid>
+              <Grid
+                xs={12}
+                sm={12}
+                md={6}
+                lg={6}
+                sx={{
+                  margin: "1rem",
+                  display: "flex",
+                  flexFlow: "column",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    left: "95%",
+                    top: "0%",
+                    width: "fit-content",
+                  }}
+                >
+                  <Cancel
+                    onClick={detailClose}
+                    sx={{ cursor: "pointer", minWidth: "20%" }}
+                  />
+                </div>
+                <div>
+                  <Typography
+                    id="modal-modal-title"
+                    variant="subtitle1"
+                    align="left"
+                  >
+                    <b>Name: </b> {prodDetail && prodDetail.name}
+                  </Typography>
+                  <br />
+                  <Typography
+                    id="modal-modal-title"
+                    variant="subtitle1"
+                    align="left"
+                    sx={{
+                      overflow: "auto",
+                    }}
+                  >
+                    <b>Description: </b>
+                    {prodDetail && prodDetail.description}
+                  </Typography>
+                  <br />
+                  <Typography
+                    id="modal-modal-title"
+                    variant="subtitle1"
+                    align="left"
+                  >
+                    <b>Price: </b>
+                    {prodDetail && prodDetail.price} ฿
+                  </Typography>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "end",
+                  }}
+                >
+                  <Fab
+                    color="info"
+                    aria-label="edit"
+                    onClick={() => editOpen(prodDetail.id)}
+                    sx={{
+                      marginX: ".3rem",
+                      marginY: ".3rem",
+                      width: "40px",
+                      height: "auto",
+                    }}
+                  >
+                    <Build sx={{ width: "20px", height: "auto" }} />
+                  </Fab>
+                  <Fab
+                    color="error"
+                    aria-label="delete"
+                    onClick={confirmDeleteOpen}
+                    sx={{
+                      marginX: ".3rem",
+                      marginY: ".3rem",
+                      width: "40px",
+                      height: "auto",
+                    }}
+                  >
+                    <Delete sx={{ width: "20px", height: "auto" }} />
+                  </Fab>
+                </div>
+              </Grid>
+            </Grid>
+          </Box>
+        </Modal>
+        <Modal
+          open={openEditProd}
+          onClose={editClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography
+              id="modal-modal-title"
+              variant="h5"
+              component="h2"
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
+              Edit Product
+            </Typography>
+            <div
+              style={{
+                display: "flex",
+                flexFlow: "column ",
+                alignItems: "center",
+              }}
+            >
+              <TextField
+                defaultValue={products.name}
+                label="Name"
+                margin="normal"
+                sx={{ width: "80%" }}
+                onChange={(e) =>
+                  setProduct({ ...products, name: e.target.value })
+                }
+              ></TextField>
+              <TextField
+                defaultValue={products.price}
+                label="Price"
+                margin="normal"
+                type="number"
+                sx={{ width: "80%" }}
+                onChange={(e) =>
+                  setProduct({ ...products, price: e.target.value })
+                }
+              ></TextField>
+              <TextField
+                defaultValue={products.description}
+                label="Description"
+                margin="normal"
+                sx={{ width: "80%" }}
+                onChange={(e) =>
+                  setProduct({
+                    ...products,
+                    description: e.target.value,
+                  })
+                }
+              ></TextField>
+              <TextField
+                defaultValue={products.photo}
+                label="Photo"
+                margin="normal"
+                sx={{ width: "80%" }}
+                onChange={(e) =>
+                  setProduct({ ...products, photo: e.target.value })
+                }
+              ></TextField>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "end",
+                alignItems: "end",
+              }}
+            >
+              <Button
+                color="error"
+                onClick={editClose}
+                style={{ marginX: "1rem" }}
+              >
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                onClick={() => saveEditProduct(products.id)}
+                style={{ marginX: "1rem" }}
+              >
+                Save
+              </Button>
+            </div>
+          </Box>
+        </Modal>
+        <Modal
+          open={openConfirmDelete}
+          onClose={confirmDeleteClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={stylecancel}>
+            <Typography id="modal-modal-title" variant="h6" align="center">
+              Do you want to delete?
+            </Typography>
+            <br />
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <Button color="error" onClick={() => setOpenConfirmDelete(false)}>
+                No
+              </Button>
+              <Button color="primary" onClick={() => DeleteProd(prodDetail.id)}>
+                Yes
+              </Button>
+            </div>
+          </Box>
+        </Modal>
         <Grid container sx={{ display: "flex", justifyContent: "center" }}>
           {datas.map((product, id) => {
             return (
               <div key={id}>
                 <Grid sx={{ margin: "1rem" }}>
                   <Card sx={{ width: "18rem" }}>
-                    <Modal
-                      open={openDetail}
-                      onClose={detailClose}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
-                    >
-                      <Box sx={stylecard}>
-                        <div
-                          style={{
-                            display: "flex",
-                            borderRadius: "1%",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <div
-                            style={{
-                              width: "50%",
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              overflow: "hidden",
-                            }}
-                          >
-                            <img
-                              src={prodDetail && prodDetail.photo}
-                              alt="product"
-                              style={{ height: "80vh", width: "auto" }}
-                            ></img>
-                          </div>
-                          <div
-                            style={{
-                              width: "50%",
-                              display: "flex",
-                              flexFlow: "column",
-                              justifyContent: "space-between",
-                              margin: ".5rem",
-                            }}
-                          >
-                            <Typography
-                              id="modal-modal-title"
-                              variant="h5"
-                              component="h2"
-                              sx={{ display: "flex", justifyContent: "start" }}
-                            >
-                              {prodDetail && prodDetail.name}
-                            </Typography>
-                            <Typography
-                              id="modal-modal-title"
-                              variant="h5"
-                              component="h2"
-                              sx={{ display: "flex", justifyContent: "start" }}
-                            >
-                              {prodDetail && prodDetail.description}
-                            </Typography>
-                            <Typography
-                              id="modal-modal-title"
-                              variant="h5"
-                              component="h2"
-                              sx={{ display: "flex", justifyContent: "start" }}
-                            >
-                              Price {prodDetail && prodDetail.price} ฿
-                            </Typography>
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "end",
-                                alignItems: "end",
-                              }}
-                            >
-                              <Fab
-                                color="secondary"
-                                aria-label="edit"
-                                onClick={() => editOpen(prodDetail.id)}
-                                sx={{
-                                  marginX: "1rem",
-                                  marginY: ".3rem",
-                                  scale: "80%",
-                                }}
-                              >
-                                <Build />
-                              </Fab>
-                              <Fab
-                                color="secondary"
-                                aria-label="delete"
-                                onClick={() => DeleteProd(prodDetail.id)}
-                                sx={{
-                                  marginX: "1rem",
-                                  marginY: ".3rem",
-                                  scale: "80%",
-                                }}
-                              >
-                                <Delete />
-                              </Fab>
-                            </div>
-                          </div>
-                        </div>
-                      </Box>
-                    </Modal>
-                    <Modal
-                      open={openEditProd}
-                      onClose={editClose}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
-                    >
-                      <Box sx={style}>
-                        <Typography
-                          id="modal-modal-title"
-                          variant="h5"
-                          component="h2"
-                          sx={{ display: "flex", justifyContent: "center" }}
-                        >
-                          Edit Product
-                        </Typography>
-
-                        <TextField
-                          defaultValue={products.name}
-                          label="Name"
-                          margin="normal"
-                          onChange={(e) =>
-                            setProduct({ ...products, name: e.target.value })
-                          }
-                        ></TextField>
-                        <TextField
-                          defaultValue={products.price}
-                          label="Price"
-                          margin="normal"
-                          type="number"
-                          onChange={(e) =>
-                            setProduct({ ...products, price: e.target.value })
-                          }
-                        ></TextField>
-                        <TextField
-                          defaultValue={products.description}
-                          label="Description"
-                          margin="normal"
-                          onChange={(e) =>
-                            setProduct({
-                              ...products,
-                              description: e.target.value,
-                            })
-                          }
-                        ></TextField>
-                        <TextField
-                          defaultValue={products.photo}
-                          label="Photo"
-                          margin="normal"
-                          onChange={(e) =>
-                            setProduct({ ...products, photo: e.target.value })
-                          }
-                        ></TextField>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "end",
-                            alignItems: "end",
-                          }}
-                        >
-                          <Button onClick={editClose}>Cancel</Button>
-                          <Button onClick={() => saveEditProduct(products.id)}>
-                            Save
-                          </Button>
-                        </div>
-                      </Box>
-                    </Modal>
                     <div style={{ display: "flex", flexFlow: "column" }}>
                       <div
                         style={{ display: "flex ", justifyContent: "center" }}
@@ -372,13 +469,16 @@ function App() {
                             variant="body1"
                             sx={{ fontWeight: "bold" }}
                           >
-                            Name: {product.name}
+                            {product.name}
                           </Typography>
                           <Typography variant="body1">
-                            Price: {product.price}
+                            {product.price} ฿
                           </Typography>
                         </div>
-                        <Button onClick={() => detailOpen(product.id)}>
+                        <Button
+                          onClick={() => detailOpen(product.id)}
+                          color="info"
+                        >
                           See More
                         </Button>
                       </div>
